@@ -1,0 +1,11 @@
+{
+  "cmd": ["inform", "$file"],
+  "selector": "source.inform",
+  "variants": [
+    {
+      "name": "With INFIX Debugger",
+      "cmd": ["inform", "-X", "$file"]
+    }
+  ],
+  "file_regex": "^\\s*File \"(...*?)\", line ([0-9]*)"
+}

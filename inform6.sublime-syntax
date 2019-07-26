@@ -1,0 +1,184 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+file_extensions:
+  - inf
+  - h
+scope: source.inform
+
+variables:
+  ident: '[A-Za-z_][A-Za-z_0-9]*'
+
+contexts:
+  prototype:
+    - include: comments
+
+  main:
+    - include: operators
+    - include: statements
+    - include: directives
+    - include: functions
+    - include: numbers
+    - include: constants
+    - include: strings
+    - include: variables
+
+    # - include: square_brackets
+
+  operators:
+    - match: \+|-|/|%|\*
+      scope: keyword.operator.arithmetic.inform
+    - match: =
+      scope: keyword.operator.assignment.inform
+    - match: '&|\||\~'
+      scope: keyword.operator.bitwise.inform
+    - match: '->|-->|==|\~=|>|>=|<|<=|&&|\|\||\~\~'
+      scope: keyword.operator.inform
+    - match: \b(has|hasnt|in|notin|ofclass|provides|or)\b
+      scope: keyword.operator.word.inform
+
+  statements:
+    - match: \b(box|break|continue|do|font(\s+)(on|off)|for|give|jump|move|to|new_line|objectloop|print|print_ret|remove|return|rfalse|rtrue|spaces|string|style(\s+)(roman|bold|underline|reverse|fixed)|switch|until|while)\b
+      scope: keyword.control.inform
+    - match: \b(if|else)\b
+      scope: keyword.control.conditional.inform
+    - match: '(@)(add|and|aread|art_shift|buffer_mode|buffer_screen|call|call_1n|call_1s|call_2n|call_2s|call_vn|call_vs|call_vn2|call_vs2|catch|check_arg_count|check_unicode|clear_attr|copy_table|dec|dec_chk|div|draw_picture|encode_text|erase_line|erase_picture|erase_window|get_child|get_cursor|get_next_prop|get_parent|get_prop|get_prop_addr|get_prop_len|get_sibling|get_wind_prop|inc|inc_chk|input_stream|insert_obj|je|jg|jin|jl|jump|jz|load|loadb|loadw|log_shift|make_menu|mod|mouse_window|move_window|mul|new_line|nop|not|or|output_stream|picture_data|picture_table|piracy|pop|pop_stack|print|print_addr|print_char|print_form|print_num|print_obj|print_paddr|print_ret|print_table|print_unicode|pull|push|push_stack|put_prop|put_wind_prop|quit|random|sread|aread|read_char|read_mouse|remove_obj|restart|restore|restore_undo|ret|ret_popped|rfalse|rtrue|save|save_undo|scan_table|scroll_window|set_attr|set_colour|set_cursor|set_font|set_margins|set_text_style|set_true_colour|set_window|show_status|sound_effect|split_window|store|storeb|storew|sub|test|test_attr|throw|tokenise|verify|window_size|window_style)'
+      captures:
+        0: keyword.control.inform
+        1: punctuation.definition.keyword.inform
+
+  directives:
+    - match: '\bInclude\b'
+      scope: keyword.control.import.inform
+    - match: '\bObject\b'
+      scope: entity.name.object.inform
+      push: objects
+    - match: '\bClass\b'
+      scope: entity.name.class.inform
+      push: objects
+    - match: '\b(Verb|Extend)\b'
+      scope: entity.name.verb.inform
+      push: verbs
+    - match: \b(Array|Constant)\b
+      scope: storage.type.inform
+    - match: '\b(Abbreviate|Attribute|Default|End|Endif|Global|Ifdef|Ifndef|Ifnot|Iftrue|Iffalse|Import|Link|Lowstring|Message|Property|Release|Replace|Serial|Switches|Statusline(\s+)(score|time)|System_file|Verb|Zcharacter)\b'
+      scope: keyword.other.inform
+
+  objects:
+    - meta_scope: meta.object.inform
+    - match: ;
+      pop: true
+    - match: \b(with|has|class|private)\b
+      scope: keyword.control.inform
+    - include: anon-functions
+    - include: numbers
+    - include: constants
+    - include: strings
+    - include: variables
+
+  verbs:
+    - meta_scope: meta.verb.inform
+    - match: ;
+      pop: true
+    - include: strings
+
+  functions:
+    - match: '\[\s*({{ident}})'
+      captures:
+        1: entity.name.function.inform
+      push: [function-definition, parameters]
+
+  anon-functions:
+    - match: '\['
+      push: [function-definition, parameters]
+
+  function-definition:
+    - meta_scope: meta.function.inform
+    - match: \]
+      pop: true
+    - include: operators
+    - include: statements
+    - include: function-calls
+    - include: numbers
+    - include: constants
+    - include: strings
+    - include: variables
+
+  parameters:
+    - meta_scope: meta.function.parameters.inform
+    - match: ;
+      pop: true
+
+  function-calls:
+    - match: '\b({{ident}})\s*\('
+      captures:
+        1: variable.function.inform
+      push: arguments
+
+  arguments:
+    - meta_include_prototype: false
+    - meta_scope: meta.function-call.inform
+    - match: \)
+      pop: true
+
+  numbers:
+    - match: '(-)?\$[0-9]+'
+      scope: constant.numeric.integer.hexadecimal.inform
+    - match: '(-)?\$\$[0-9]+'
+      scope: constant.numeric.integer.binary.inform
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric.inform
+
+  variables:
+    - match: \bself\b
+      scope: variable.language.inform
+
+  constants:
+    - match: \b(true|false)\b
+      scope: constant.language.inform
+
+  strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin.inform
+      push: inside_double_quoted_string
+    - match: ''''
+      scope: punctuation.definition.string.begin.inform
+      push: inside_single_quoted_string
+
+  inside_double_quoted_string:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.double.inform
+    - match: '\^|\~|@{[A-Za-z0-9]+}'
+      scope: constant.character.escape.inform
+    - match: '"'
+      scope: punctuation.definition.string.end.inform
+      pop: true
+
+  inside_single_quoted_string:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.single.inform
+    - match: '\^|\~|@{[A-Za-z0-9]+}'
+      scope: constant.character.escape.inform
+    - match: ''''
+      scope: punctuation.definition.string.end.inform
+      pop: true
+
+  comments:
+    - match: '!'
+      scope: punctuation.definition.comment.inform
+      push:
+        - meta_scope: comment.line.inform
+        - match: $\n?
+          pop: true
+
+  # square_brackets:
+  #   - match: \[
+  #     scope: punctuation.section.brackets.begin.inform
+  #     push: inside_square_brackets
+
+  # inside_square_brackets:
+  #   - meta_scope: meta.brackets.inform
+  #   - match: \]
+  #     scope: punctuation.section.brackets.end.inform
+  #     pop: true
+  #   - include: main
