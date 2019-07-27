@@ -63,6 +63,9 @@ contexts:
       scope: storage.type.inform
     - match: '\b(Abbreviate|Attribute|Default|End|Endif|Global|Ifdef|Ifndef|Ifnot|Iftrue|Iffalse|Import|Link|Lowstring|Message|Property|Release|Replace|Serial|Switches|Statusline(\s+)(score|time)|System_file|Verb|Zcharacter)\b'
       scope: keyword.other.inform
+    - match: \b{{ident}}\b
+      scope: entity.name.object.inform
+      push: objects
 
   objects:
     - meta_scope: meta.object.inform
@@ -120,6 +123,12 @@ contexts:
     - meta_scope: meta.function-call.inform
     - match: \)
       pop: true
+    - include: operators
+    - include: function-calls
+    - include: numbers
+    - include: constants
+    - include: strings
+    - include: variables
 
   numbers:
     - match: '(-)?\$[0-9]+'
